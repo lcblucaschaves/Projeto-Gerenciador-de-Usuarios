@@ -10,7 +10,7 @@ class UserController {
         this.formEl.addEventListener("submit", event => {
             event.preventDefault();
 
-            let btn = this.formEl.querySelector("[type=submit]")
+            let btn = this.formEl.querySelector("[type=submit]");
             btn.disabled = true;
 
             let values = this.getValues();
@@ -71,7 +71,7 @@ class UserController {
             if (field.name === "gender") {
     
                 if (field.checked) {
-                    user[field.name] = field.value
+                    user[field.name] = field.value;
                 }
     
             } else if(field.name == "admin") {
