@@ -6,6 +6,7 @@ class UserController {
         this.tableEl = document.getElementById(tableId);
         this.onSubmit();
         this.onEdit();
+        this.selectAll();
     }
 
     onEdit(){
@@ -41,7 +42,7 @@ class UserController {
                     <td>${Utils.dateFormat(result._register)}</td>
                     <td>
                         <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                        <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                        <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
                     </td></tr>
                     `;
 
@@ -72,6 +73,7 @@ class UserController {
             this.getPhoto(this.formEl).then(
                 (content) => {
                     values.photo = content;
+                    this.insert(values);
                     this.addLine(values);
                     this.formEl.reset();
                     btn.disabled = false;
@@ -144,6 +146,37 @@ class UserController {
             user.admin
         );
     }
+
+    getUsersStorage() {
+        let users = [];
+        //mude para sessionStorage se for armazenar dados de sessão
+        //mude para localStorage se for armazenar localmente
+        if (localStorage.getItem("users")) {
+            users = JSON.parse(localStorage.getItem("users"));
+        }
+
+        return users;
+    }
+
+    selectAll() {
+        let users = this.getUsersStorage();
+
+        users.forEach(dataUser => {
+            let user = new User();
+            user.loadFromJSON(dataUser);
+            this.addLine(user);
+        });
+    }
+
+    insert(data) {
+        let users = this.getUsersStorage();
+        
+        users.push(data);
+        localStorage.setItem("users", JSON.stringify(users));
+
+        //mude para sessionStorage se for armazenar dados de sessão
+         //mude para localStorage se for armazenar localmente
+    }
     
     addLine(dataUser) {
         let tr = document.createElement('tr');
@@ -156,7 +189,7 @@ class UserController {
             <td>${Utils.dateFormat(dataUser.register)}</td>
             <td>
                 <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
             </td></tr>
         `;
 
@@ -166,6 +199,13 @@ class UserController {
     }
 
     addEventsTr(tr) {
+        tr.querySelector(".btn-delete").addEventListener("click", e => {
+            if (confirm("Deseja realmente excluir?")) {
+                tr.remove();
+                this.updateCount();
+            }
+        });
+
         tr.querySelector(".btn-edit").addEventListener("click", e => {
             let json = JSON.parse(tr.dataset.user);
             this.formUpdateEl.dataset.trIndex = tr.sectionRowIndex;
